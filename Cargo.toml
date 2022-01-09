@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 serialport = "4.0.1"
-static_assertions = "1.1.0"
+image = "0.23.14"

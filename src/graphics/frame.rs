@@ -1,34 +1,31 @@
 use crate::graphics::point;
+use std::ops::{Deref, DerefMut};
+use std::sync::{Mutex, MutexGuard};
 use image::{imageops::*, GenericImageView};
 // The frame is a tunnel to send the points vector
 // the points buffer is the current working-drawing buffer,
 // the buffer vector is the one being drawn points into while the engine runs
-pub struct Frame<'a> {
-    pub drawbuffer : &'a Vec<Option<point::Point>>,
-    pub workbuffer : &'a Vec<Option<point::Point>>,
-    points_vec: Vec<Option<point::Point>>,
-    buffer_vec: Vec<Option<point::Point>>,
+// Buffers are rotated every drawing loop. The structure is concurrently accessed
+pub struct Frame {
+    // Bi-state flag, false points to drawbuffer, true points to the workbuffer
+    flip : bool,
+    draw_vec: Mutex<Vec<Option<point::Point>>>,
+    work_vec: Mutex<Vec<Option<point::Point>>>,
     debug: String
 }
 
-impl Frame<'_> {
-    pub fn new<'a>() -> Frame<'a> {
-        let f : Frame;
-        f.points_vec = Vec::new();
-        f.buffer_vec = Vec::new();
-        f.drawbuffer = &f.points_vec;
-        f.workbuffer = &f.buffer_vec;
-
-        f.debug = "".to_string();
+impl Frame {
+    pub fn new<'a>() -> Frame {
+        let mut f = Frame {flip : false, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new()), debug : "".to_string()};
         f
     }
 
-    pub fn from_image(&self, filename : &String) -> Result<(), image::ImageError> {
-        let npoints : i32 = 0;
+    pub fn from_image(&mut self, filename : &String) -> Result<(), image::ImageError> {
+        let mut npoints : i32 = 0;
         let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
         let altered_display = contrast(&image, 0.5f32);
         let display = image::DynamicImage::ImageRgba8(altered_display); 
-        self.buffer_vec.extend(display.pixels().map(
+        self.workbuffer().deref_mut().extend(display.pixels().map(
             |pixel| {
                 if pixel.2[0] < 127 {
                     npoints += 1;
@@ -41,18 +38,33 @@ impl Frame<'_> {
         Ok(())
     }
 
-    pub fn clear(&self){
-        self.drawbuffer.clear();
+    pub fn drawbuffer(&self) -> MutexGuard<Vec<Option<point::Point>>> {
+        if self.flip {
+            return self.draw_vec.lock().unwrap();
+        } else {
+            return self.work_vec.lock().unwrap();
+        }
     }
 
-    pub fn clear_work(&self){
-        self.workbuffer.clear();
+    pub fn workbuffer(&self) -> MutexGuard<Vec<Option<point::Point>>> {
+        if self.flip {
+            return self.work_vec.lock().unwrap();
+        } else {
+            return self.draw_vec.lock().unwrap();
+        }
     }
 
-    pub fn swap(&self){
-        let temp = self.drawbuffer;
-        self.drawbuffer = temp;
-        self.workbuffer = temp;
+    pub fn clear(&mut self){
+        self.drawbuffer().deref_mut().clear();
+    }
+
+    pub fn clear_work(&mut self){
+        self.workbuffer().deref_mut().clear();
+    }
+
+    pub fn swap(&mut self){
+        self.drawbuffer(); self.workbuffer();
+        self.flip = !self.flip;
     }
 
     //TODO: Add line drawing methods and point drawing methods!!!
