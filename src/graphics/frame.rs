@@ -20,7 +20,7 @@ impl Frame {
         f
     }
 
-    pub fn from_image(&mut self, filename : &String) -> Result<(), image::ImageError> {
+    pub fn from_image(&mut self) -> Result<(), image::ImageError> {
         let mut npoints : i32 = 0;
         let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
         let altered_display = contrast(&image, 0.5f32);
@@ -63,7 +63,8 @@ impl Frame {
     }
 
     pub fn swap(&mut self){
-        self.drawbuffer(); self.workbuffer();
+        let _mut_ = self.work_vec.lock();
+        let _mut__ = self.draw_vec.lock();
         self.flip = !self.flip;
     }
 

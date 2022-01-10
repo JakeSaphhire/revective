@@ -6,5 +6,7 @@ mod graphics;
 
 
 fn main() -> () {
-    
+    let mut f : graphics::frame::Frame = graphics::frame::Frame::new();
+    let ctx : context::Context = context::Context::new(f, 5);
+    ctx.spawn();
 }
