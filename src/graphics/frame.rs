@@ -9,14 +9,14 @@ use image::{imageops::*, GenericImageView};
 pub struct Frame {
     // Bi-state flag, false points to drawbuffer, true points to the workbuffer
     flip : bool,
-    draw_vec: Mutex<Vec<Option<point::Point>>>,
-    work_vec: Mutex<Vec<Option<point::Point>>>,
+    draw_vec: Mutex<Vec<point::Point>>,
+    work_vec: Mutex<Vec<point::Point>>,
     debug: String
 }
 
 impl Frame {
     pub fn new<'a>() -> Frame {
-        let mut f = Frame {flip : false, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new()), debug : "".to_string()};
+        let mut f = Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new()), debug : "".to_string()};
         f
     }
 
@@ -24,21 +24,17 @@ impl Frame {
         let mut npoints : i32 = 0;
         let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
         let altered_display = contrast(&image, 0.5f32);
-        let display = image::DynamicImage::ImageRgba8(altered_display); 
-        self.workbuffer().deref_mut().extend(display.pixels().map(
-            |pixel| {
-                if pixel.2[0] < 127 {
-                    npoints += 1;
-                    Some(point::Point::new(0b00001000, ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 2048u16-((pixel.1 as f32/display.height() as f32)*2048f32) as u16))
-                } else {
-                    None
-                }
+        let display = image::DynamicImage::ImageRgba8(altered_display);
+        let mut vec = self.workbuffer();
+        for pixel in display.pixels(){
+            if pixel.2[0] < 127 {
+                vec.push(point::Point::new(0b00001000, ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 2048u16-((pixel.1 as f32/display.height() as f32)*2048f32) as u16));
             }
-        ));
+        }
         Ok(())
     }
 
-    pub fn drawbuffer(&self) -> MutexGuard<Vec<Option<point::Point>>> {
+    pub fn drawbuffer(&self) -> MutexGuard<Vec<point::Point>> {
         if self.flip {
             return self.draw_vec.lock().unwrap();
         } else {
@@ -46,7 +42,7 @@ impl Frame {
         }
     }
 
-    pub fn workbuffer(&self) -> MutexGuard<Vec<Option<point::Point>>> {
+    pub fn workbuffer(&self) -> MutexGuard<Vec<point::Point>> {
         if self.flip {
             return self.work_vec.lock().unwrap();
         } else {

@@ -7,6 +7,9 @@ mod graphics;
 
 fn main() -> () {
     let mut f : graphics::frame::Frame = graphics::frame::Frame::new();
-    let ctx : context::Context = context::Context::new(f, 5);
-    ctx.spawn();
+    let _ = f.from_image().unwrap();
+    let ctx : context::Context = context::Context::new(f, 1);
+
+    context::Context::list_ports();
+    let handle = ctx.spawn().join().unwrap();
 }
