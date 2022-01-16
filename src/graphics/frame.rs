@@ -1,5 +1,6 @@
+#![allow(dead_code)]
 use crate::graphics::point;
-use std::ops::{Deref, DerefMut};
+use std::ops::DerefMut;
 use std::sync::{Mutex, MutexGuard};
 use image::{imageops::*, GenericImageView};
 // The frame is a tunnel to send the points vector
@@ -11,17 +12,15 @@ pub struct Frame {
     flip : bool,
     draw_vec: Mutex<Vec<point::Point>>,
     work_vec: Mutex<Vec<point::Point>>,
-    debug: String
 }
 
 impl Frame {
     pub fn new<'a>() -> Frame {
-        let mut f = Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new()), debug : "".to_string()};
+        let f = Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new())};
         f
     }
 
     pub fn from_image(&mut self) -> Result<(), image::ImageError> {
-        let mut npoints : i32 = 0;
         let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
         let altered_display = contrast(&image, 0.5f32);
         let display = image::DynamicImage::ImageRgba8(altered_display);

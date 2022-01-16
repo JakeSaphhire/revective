@@ -1,5 +1,5 @@
+#![allow(dead_code)]
 use serialport as sp;
-use std::io;
 
 pub struct Point{
     pub flags: u8,

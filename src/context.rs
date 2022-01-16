@@ -1,13 +1,12 @@
+#![allow(dead_code)]
 use serialport as sp;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use std::thread;
-use std::sync::Mutex;
 use crate::graphics::frame;
 
 pub struct Context{
     screen: frame::Frame,
     port: Box<dyn sp::SerialPort>,
-    times : Vec<u128>,
     pub sent : (i32, i32),
     pub ratio : i16
 }
@@ -19,7 +18,6 @@ impl Context {
                     port : sp::new(&ports[0].port_name, 115200).open().expect("Failed to open port!"), 
                     sent : (0,0), 
                     ratio : r,
-                    times: Vec::new()
                 }
     }
 
@@ -29,18 +27,10 @@ impl Context {
         }
     }
 
-    pub fn debug(&self){
-        println!("{:.2}", self.sent.0 as f32 / self.sent.1 as f32)
-    }
-
-    pub fn setRatio(&mut self, r : i16) -> &Context {
+    pub fn set_ratio(&mut self, r : i16) -> &Context {
         self.ratio = r;
         self
     }
-
-    // Todo
-    pub fn debuginfo(){}
-    fn draw(){}
 }
 
 impl Context{
