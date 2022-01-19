@@ -1,6 +1,21 @@
 #![allow(dead_code)]
 use serialport as sp;
 
+
+// Point structure - 
+// Smallest datapacket sent to serialport, Stored in a 4096 frame bucket by default
+// FLAGS:   0x8     for nobuffer
+//          0x10    for clearbuffer
+//          0x40    for line
+//          0x80    for point
+
+pub enum Flag {
+    NoBuffer    = 0x8,
+    ClearBuffer = 0x10,
+    Line        = 0x40,
+    Point       = 0x80
+}
+
 pub struct Point{
     pub flags: u8,
     posx : u16,
@@ -13,6 +28,14 @@ impl Point{
         if x > 4096 { px = 4096; } else { px = x }
         if y > 4096 { py = 4096; } else { py = y}
         Point{flags: flags, posx : px, posy : py}
+    }
+
+    pub fn make_point(x : u16, y : u16) -> Point{
+        Point::new(Flag::Point as u8, x, y)
+    }
+
+    pub fn make_line(x : u16, y : u16) -> Point{
+        Point::new(Flag::Line as u8, x, y)
     }
 
     fn pack(&self) -> u32 {
@@ -40,6 +63,10 @@ impl Point{
         port.write(&self.bufferize())
     }
 
+    pub fn add_flag(&mut self, flag: Flag) -> &Self {
+        self.flags = self.flags | flag as u8;
+        return self;
+    }
 }
 
 

@@ -36,9 +36,10 @@ impl Context {
 impl Context{
     pub fn spawn(mut self) -> thread::JoinHandle<Result<(), std::io::Error>> {    
         let context = thread::spawn(move || -> Result<(), std::io::Error> {
+            use std::ops::{Deref, DerefMut};
+            
             println!("{:#?}", Some(self.port.name()));
             let mut frame = self.screen;
-            use std::ops::{Deref, DerefMut};
             let mut flip : i16 = 0;
             let mut i : i16 = 0;
             let mut times : Vec<u128> = Vec::new();

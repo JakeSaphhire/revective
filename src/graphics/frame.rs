@@ -8,6 +8,7 @@ use image::{imageops::*, GenericImageView};
 // the buffer vector is the one being drawn points into while the engine runs
 // Buffers are rotated every drawing loop. The structure is concurrently accessed
 pub struct Frame {
+    // TODO: Add Size and Depth info
     // Bi-state flag, false points to drawbuffer, true points to the workbuffer
     flip : bool,
     draw_vec: Mutex<Vec<point::Point>>,
@@ -15,7 +16,7 @@ pub struct Frame {
 }
 
 impl Frame {
-    pub fn new<'a>() -> Frame {
+    pub fn new() -> Frame {
         let f = Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new())};
         f
     }
