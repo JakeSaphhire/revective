@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use serialport as sp;
-use crate::graphics;
+use crate::graphics::{Point, Drawable};
 
 // Point structure - 
 // Smallest datapacket sent to serialport, Stored in a 4096 frame bucket by default
@@ -14,12 +14,6 @@ pub enum Flag {
     ClearBuffer = 0x10,
     Line        = 0x40,
     Point       = 0x80
-}
-
-pub struct Point{
-    pub flags: u8,
-    posx : u16,
-    posy : u16,
 }
 
 impl Point{
@@ -69,7 +63,7 @@ impl Point{
     }
 }
 
-impl graphics::Draw for Point {
+impl Drawable for Point {
     fn draw(&self, port: &mut dyn sp::SerialPort) -> std::io::Result<usize>{
         self.send(port)
     }

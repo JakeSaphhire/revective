@@ -1,12 +1,14 @@
-mod context;
 mod graphics;
+mod context;
 
+use crate::graphics::{Frame, Point};
+use context::Context;
 
 fn main() -> () {
-    let mut f : graphics::frame::Frame<graphics::point::Point> = graphics::frame::Frame::new();
+    let mut f : Frame<Point> = Frame::new();
     let _ = f.from_image().unwrap();
-    let ctx : context::Context<graphics::point::Point> = context::Context::new(f, 1);
+    let ctx : Context<Point> = Context::new(f, 1);
 
-    context::Context::list_ports();
+    Context::list_ports();
     let _ = ctx.spawn().join().unwrap();
 }

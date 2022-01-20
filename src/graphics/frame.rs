@@ -1,7 +1,5 @@
 #![allow(dead_code)]
-use crate::graphics::point as Points;
-use crate::graphics::shapes as Shapes;
-use crate::graphics as Graphics;
+use crate::graphics::{Drawable, Point, Frame};
 use std::ops::DerefMut;
 use std::sync::{Mutex, MutexGuard};
 use image::{imageops::*, GenericImageView};
@@ -9,15 +7,8 @@ use image::{imageops::*, GenericImageView};
 // the points buffer is the current working-drawing buffer,
 // the buffer vector is the one being drawn points into while the engine runs
 // Buffers are rotated every drawing loop. The structure is concurrently accessed
-pub struct Frame<T: Graphics::Draw> {
-    // TODO: Add Size and Depth info
-    // Bi-state flag, false points to drawbuffer, true points to the workbuffer
-    flip : bool,
-    draw_vec: Mutex<Vec<T>>,
-    work_vec: Mutex<Vec<T>>,
-}
 
-impl<T: Graphics::Draw> Frame<T> {
+impl<T: Drawable> Frame<T> {
     pub fn new() -> Frame<T> {
         Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new())}
     }
@@ -55,7 +46,7 @@ impl<T: Graphics::Draw> Frame<T> {
     //TODO: Add line drawing methods and point drawing methods!!!
 }
 
-impl Frame<Graphics::point::Point> {
+impl Frame<Point> {
     pub fn from_image(&mut self) -> Result<(), image::ImageError> {
         let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
         let altered_display = contrast(&image, 0.5f32);
@@ -64,7 +55,7 @@ impl Frame<Graphics::point::Point> {
         for pixel in display.pixels(){
             if pixel.2[0] < 127 {
                 vec.push(
-                    Graphics::point::Point::new( 0b00001000, 
+                    Point::new( 0b00001000, 
                             ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 
                             2048u16-((pixel.1 as f32/display.height() as f32)*2048f32) as u16
                         )

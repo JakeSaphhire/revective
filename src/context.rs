@@ -2,18 +2,18 @@
 use serialport as sp;
 use std::time::Instant;
 use std::thread;
-use crate::graphics::frame;
 use crate::graphics as Graphics;
+use crate::graphics::{Point, Frame};
 
-pub struct Context<T : Graphics::Draw>{
-    screen: frame::Frame<T>,
+pub struct Context<T : Graphics::Drawable>{
+    screen: Frame<T>,
     port: Box<dyn sp::SerialPort>,
     pub sent : (i32, i32),
     pub ratio : i16
 }
 
-impl<T : Graphics::Draw> Context<T> {
-    pub fn new(f :  frame::Frame<T>, r : i16) -> Context<T>{
+impl<T : Graphics::Drawable> Context<T> {
+    pub fn new(f :  Frame<T>, r : i16) -> Context<T>{
         let ports = sp::available_ports().expect("Failed to list ports");
         Context {   screen : f, 
                     port : sp::new(&ports[0].port_name, 115200).open().expect("Failed to open port!"), 
@@ -28,7 +28,7 @@ impl<T : Graphics::Draw> Context<T> {
     }
 }
 
-impl Context<Graphics::point::Point> {
+impl Context<Point> {
     pub fn list_ports(){
         for port in sp::available_ports().expect("Failed to list ports") {
             println!("{}", port.port_name)
@@ -36,7 +36,7 @@ impl Context<Graphics::point::Point> {
     }
 }
 
-impl<T : Graphics::Draw + Send + 'static> Context<T>{
+impl<T : Graphics::Drawable + Send + 'static> Context<T>{
     pub fn spawn(mut self) -> thread::JoinHandle<Result<(), std::io::Error>> {    
         let context = thread::spawn(move || -> Result<(), std::io::Error> {
             use std::ops::{Deref, DerefMut};
