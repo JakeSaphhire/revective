@@ -3,16 +3,17 @@ use serialport as sp;
 use std::time::Instant;
 use std::thread;
 use crate::graphics::frame;
+use crate::graphics as Graphics;
 
-pub struct Context{
-    screen: frame::Frame,
+pub struct Context<T : Graphics::Draw>{
+    screen: frame::Frame<T>,
     port: Box<dyn sp::SerialPort>,
     pub sent : (i32, i32),
     pub ratio : i16
 }
 
-impl Context {
-    pub fn new(f :  frame::Frame, r : i16) -> Context{
+impl<T : Graphics::Draw> Context<T> {
+    pub fn new(f :  frame::Frame<T>, r : i16) -> Context<T>{
         let ports = sp::available_ports().expect("Failed to list ports");
         Context {   screen : f, 
                     port : sp::new(&ports[0].port_name, 115200).open().expect("Failed to open port!"), 
@@ -21,19 +22,21 @@ impl Context {
                 }
     }
 
-    pub fn list_ports(){
-        for port in sp::available_ports().expect("Failed to list ports") {
-            println!("{}", port.port_name)
-        }
-    }
-
-    pub fn set_ratio(&mut self, r : i16) -> &Context {
+    pub fn set_ratio(&mut self, r : i16) -> &Context<T> {
         self.ratio = r;
         self
     }
 }
 
-impl Context{
+impl Context<Graphics::point::Point> {
+    pub fn list_ports(){
+        for port in sp::available_ports().expect("Failed to list ports") {
+            println!("{}", port.port_name)
+        }
+    }
+}
+
+impl<T : Graphics::Draw + Send + 'static> Context<T>{
     pub fn spawn(mut self) -> thread::JoinHandle<Result<(), std::io::Error>> {    
         let context = thread::spawn(move || -> Result<(), std::io::Error> {
             use std::ops::{Deref, DerefMut};
@@ -65,7 +68,7 @@ impl Context{
                             } != 0 {
                                 thread::sleep(std::time::Duration::from_nanos(1));
                             }
-                            match point.send(self.port.deref_mut()) {
+                            match point.draw(self.port.deref_mut()) {
                                 Ok(_v) => {self.sent.0 += 1;}
                                 Err(_e) => {println!("{:?}", _e)}, 
                             }

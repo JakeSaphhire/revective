@@ -1,5 +1,7 @@
 #![allow(dead_code)]
-use crate::graphics::point;
+use crate::graphics::point as Points;
+use crate::graphics::shapes as Shapes;
+use crate::graphics as Graphics;
 use std::ops::DerefMut;
 use std::sync::{Mutex, MutexGuard};
 use image::{imageops::*, GenericImageView};
@@ -7,34 +9,20 @@ use image::{imageops::*, GenericImageView};
 // the points buffer is the current working-drawing buffer,
 // the buffer vector is the one being drawn points into while the engine runs
 // Buffers are rotated every drawing loop. The structure is concurrently accessed
-pub struct Frame {
+pub struct Frame<T: Graphics::Draw> {
     // TODO: Add Size and Depth info
     // Bi-state flag, false points to drawbuffer, true points to the workbuffer
     flip : bool,
-    draw_vec: Mutex<Vec<point::Point>>,
-    work_vec: Mutex<Vec<point::Point>>,
+    draw_vec: Mutex<Vec<T>>,
+    work_vec: Mutex<Vec<T>>,
 }
 
-impl Frame {
-    pub fn new() -> Frame {
-        let f = Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new())};
-        f
+impl<T: Graphics::Draw> Frame<T> {
+    pub fn new() -> Frame<T> {
+        Frame {flip : true, draw_vec : Mutex::new(Vec::new()), work_vec : Mutex::new(Vec::new())}
     }
 
-    pub fn from_image(&mut self) -> Result<(), image::ImageError> {
-        let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
-        let altered_display = contrast(&image, 0.5f32);
-        let display = image::DynamicImage::ImageRgba8(altered_display);
-        let mut vec = self.workbuffer();
-        for pixel in display.pixels(){
-            if pixel.2[0] < 127 {
-                vec.push(point::Point::new(0b00001000, ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 2048u16-((pixel.1 as f32/display.height() as f32)*2048f32) as u16));
-            }
-        }
-        Ok(())
-    }
-
-    pub fn drawbuffer(&self) -> MutexGuard<Vec<point::Point>> {
+    pub fn drawbuffer(&self) -> MutexGuard<Vec<T>> {
         if self.flip {
             return self.draw_vec.lock().unwrap();
         } else {
@@ -42,7 +30,7 @@ impl Frame {
         }
     }
 
-    pub fn workbuffer(&self) -> MutexGuard<Vec<point::Point>> {
+    pub fn workbuffer(&self) -> MutexGuard<Vec<T>> {
         if self.flip {
             return self.work_vec.lock().unwrap();
         } else {
@@ -65,4 +53,24 @@ impl Frame {
     }
 
     //TODO: Add line drawing methods and point drawing methods!!!
+}
+
+impl Frame<Graphics::point::Point> {
+    pub fn from_image(&mut self) -> Result<(), image::ImageError> {
+        let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
+        let altered_display = contrast(&image, 0.5f32);
+        let display = image::DynamicImage::ImageRgba8(altered_display);
+        let mut vec = self.workbuffer();
+        for pixel in display.pixels(){
+            if pixel.2[0] < 127 {
+                vec.push(
+                    Graphics::point::Point::new( 0b00001000, 
+                            ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 
+                            2048u16-((pixel.1 as f32/display.height() as f32)*2048f32) as u16
+                        )
+                );
+            }
+        }
+        Ok(())
+    }
 }
