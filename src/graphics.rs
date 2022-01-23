@@ -29,3 +29,15 @@ pub struct Frame<T: Drawable> {
     draw_vec: Mutex<Vec<T>>,
     work_vec: Mutex<Vec<T>>,
 }
+
+// Wrapper over points vector to provide simple image processing routine
+struct Shape {
+    vertices : Vec<Point>
+}
+
+pub enum Flag {
+    NoBuffer    = 0x8,
+    ClearBuffer = 0x10,
+    Line        = 0x40,
+    Point       = 0x80
+}
