@@ -36,7 +36,13 @@ impl Shape {
 
 impl Drawable for Shape {
     fn draw(&self, port: &mut dyn Serial::SerialPort) -> std::io::Result<usize>{
-        // TODO : Shape drawing routine
-        Ok(1)
+        let mut data_sent = 0;
+        for point in self.vertices.iter() {
+            match point.draw(port) {
+                Ok(v) => data_sent += v,
+                Err(e) => return Err(e),
+            }
+        }
+        Ok(data_sent)
     }
 }

@@ -39,5 +39,5 @@ pub enum Flag {
     NoBuffer    = 0x8,
     ClearBuffer = 0x10,
     Line        = 0x40,
-    Point       = 0x80
+    Point       = 0x80,
 }

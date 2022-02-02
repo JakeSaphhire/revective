@@ -47,7 +47,7 @@ impl<T : Graphics::Drawable + Send + 'static> Context<T>{
             let mut i : i16 = 0;
             let mut times : Vec<u128> = Vec::new();
             loop {
-                if i >= 1 {
+                if i >= 100 {
                     let t : f64 = times.iter().sum::<u128>() as f64;
                     println!("Sent ratio: {}/{} ({}%), in {}ms ({}ms per frame) for {} frames", self.sent.0, self.sent.1, self.sent.0 as f32 / self.sent.1 as f32, t, t/1000 as f64, times.len());
                     return Ok(());
@@ -70,7 +70,7 @@ impl<T : Graphics::Drawable + Send + 'static> Context<T>{
                             }
                             match point.draw(self.port.deref_mut()) {
                                 Ok(_v) => {self.sent.0 += 1;}
-                                Err(_e) => {println!("{:?}", _e)}, 
+                                Err(_e) => {/*println!("{:?}", _e)*/}, 
                             }
                             flip = 0;
                         } else {

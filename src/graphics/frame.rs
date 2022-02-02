@@ -57,7 +57,7 @@ impl Frame<Point> {
                 vec.push(
                     Point::new( 0b00001000, 
                             ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 
-                            2048u16-((pixel.1 as f32/display.height() as f32)*2048f32) as u16
+                            4096u16-((pixel.1 as f32/display.height() as f32)*4096f32) as u16
                         )
                 );
             }
