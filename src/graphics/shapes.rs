@@ -29,20 +29,20 @@ impl Shape {
         self
     }
 
-    pub fn scale(&mut self, scale_factor : f32) -> &Self {
+    pub fn scale(&mut self, _scale_factor : f32) -> &Self {
         self
     }
 }
 
 impl Drawable for Shape {
     fn draw(&self, port: &mut dyn Serial::SerialPort) -> std::io::Result<usize>{
-        let mut data_sent = 0;
+        let mut pts_sent = 0;
         for point in self.vertices.iter() {
             match point.draw(port) {
-                Ok(v) => data_sent += v,
-                Err(e) => return Err(e),
+                Ok(v) => pts_sent += v,
+                Err(_e) => (),
             }
         }
-        Ok(data_sent)
+        Ok(pts_sent)
     }
 }

@@ -1,21 +1,17 @@
 pub mod point;
 pub mod frame;
 pub mod shapes;
+pub mod contour;
 
-use serialport;
-use std::sync::{Mutex, MutexGuard};
+use std::sync::Mutex;
+
+
 //Defines important traits for the graphic submodules
-
 pub trait Drawable{
     fn draw (&self, port: &mut dyn serialport::SerialPort) -> std::io::Result<usize>;
 }
 
-// Trait to distinguish points and shapes
-pub trait IsPoint {
-    fn new(flags : u8, x : u16, y : u16) -> Point;
-}
-
-// Structures!!
+// Structure Definitions
 pub struct Point{
     pub flags: u8,
     posx : u16,
@@ -35,6 +31,8 @@ struct Shape {
     vertices : Vec<Point>
 }
 
+
+// Simple Flag enum to avoid using binary literals in code
 pub enum Flag {
     NoBuffer    = 0x8,
     ClearBuffer = 0x10,

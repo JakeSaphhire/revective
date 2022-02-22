@@ -1,8 +1,11 @@
 #![allow(dead_code)]
-use crate::graphics::{Drawable, Point, Frame};
+use crate::graphics::{Drawable, Point, Frame, Flag};
 use std::ops::DerefMut;
 use std::sync::{Mutex, MutexGuard};
-use image::{imageops::*, GenericImageView};
+
+use image::GenericImageView;
+use imageproc::contours as ImageContours;
+use imageproc::point as ImagePoint;
 // The frame is a tunnel to send the points vector
 // the points buffer is the current working-drawing buffer,
 // the buffer vector is the one being drawn points into while the engine runs
@@ -47,21 +50,38 @@ impl<T: Drawable> Frame<T> {
 }
 
 impl Frame<Point> {
-    pub fn from_image(&mut self) -> Result<(), image::ImageError> {
-        let image = image::io::Reader::open("images/image.png")?.with_guessed_format()?.decode()?.grayscale();
-        let altered_display = contrast(&image, 0.5f32);
-        let display = image::DynamicImage::ImageRgba8(altered_display);
+    pub fn from_image(&mut self, display : &image::DynamicImage) -> (&Self, usize) {
         let mut vec = self.workbuffer();
         for pixel in display.pixels(){
             if pixel.2[0] < 127 {
                 vec.push(
-                    Point::new( 0b00001000, 
-                            ((pixel.0 as f32/display.width() as f32)*4096f32) as u16, 
-                            4096u16-((pixel.1 as f32/display.height() as f32)*4096f32) as u16
+                    Point::new( Flag::Point as u8 | Flag::NoBuffer as u8, 
+                                pixel.0 as u16, 
+                                display.height() as u16 - pixel.1 as u16
                         )
                 );
             }
         }
-        Ok(())
+        let size = vec.len();
+        //println!("{} Points to draw", size);
+        (self, size)
+    }
+
+    pub fn from_image_contoured(&mut self, display : &image::GrayImage) -> (&Self, usize) {
+        use std::mem as mem;
+        let mut vec = self.workbuffer();
+        vec.extend(
+                ImageContours::find_contours::<u16>(display)
+                .iter_mut().map::<Vec<ImagePoint::Point<u16>>, _>( move |contour| mem::take(contour.points.as_mut())).flatten()
+                .map(|point : ImagePoint::Point<u16>| Point::new(Flag::NoBuffer as u8 | Flag::Point as u8, point.x, point.y)));
+        (self, vec.len())
+    }
+}
+
+impl Frame<ImageContours::Contour<u16>> {
+    pub fn from_image(&mut self, display : &image::GrayImage) -> (&Self, usize) {
+        let mut vec = self.workbuffer();
+        vec.extend(ImageContours::find_contours::<u16>(display));
+        (self, vec.len())
     }
 }

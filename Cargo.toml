@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 serialport = "4.0.1"
-image = "0.24.0"
-clap = "3.0.10"
+image = "0.23.6"
+imageproc = "0.22.0"
