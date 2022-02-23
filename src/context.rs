@@ -89,8 +89,7 @@ impl<T : Graphics::Drawable + Send +'static> Context<T>{
 impl Context<Point> {
     pub fn spawn_buf(mut self) -> thread::JoinHandle<Result<(), std::io::Error>> {    
         thread::spawn(move || -> Result<(), std::io::Error> {
-            use std::ops::{Deref, DerefMut};
-            const LOOP_AMOUNT : u16 = 1000;
+            const LOOP_AMOUNT : u16 = 1;
             let mut frame = self.screen;
             let mut i : u16 = 0;
             let mut times : Vec<u128> = Vec::new();

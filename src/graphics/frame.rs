@@ -45,8 +45,6 @@ impl<T: Drawable> Frame<T> {
         let _mut__ = self.draw_vec.lock();
         self.flip = !self.flip;
     }
-
-    //TODO: Add line drawing methods and point drawing methods!!!
 }
 
 impl Frame<Point> {
@@ -76,6 +74,35 @@ impl Frame<Point> {
                 .map(|point : ImagePoint::Point<u16>| Point::new(Flag::NoBuffer as u8 | Flag::Point as u8, point.x, point.y)));
         (self, vec.len())
     }
+
+    pub fn from_gif_contoured(&mut self) -> (&Self, usize) {
+        use std::mem as mem;
+        use std::fs::File;
+        use image::{ImageDecoder, AnimationDecoder};
+        use image::codecs::gif::GifDecoder;
+
+        let mut vec = self.workbuffer();
+        // Opening the gif - from image.rs documentation
+        let file = File::open("images/gif.gif").unwrap();
+        let decode = GifDecoder::new(file).unwrap();
+        let height = decode.dimensions().1;
+        let frames = decode.into_frames();
+        // Get height
+
+
+        for frame in frames {
+            match frame {
+                Ok(f) => vec.extend(
+                    ImageContours::find_contours::<u16>(&image::DynamicImage::ImageRgba8(f.into_buffer()).into_luma8())
+                    .iter_mut().map::<Vec<ImagePoint::Point<u16>>, _>( move |contour| mem::take(contour.points.as_mut())).flatten()
+                    .map(|point : ImagePoint::Point<u16>| Point::new(Flag::NoBuffer as u8 | Flag::Point as u8, point.x, height as u16 - point.y))),
+                Err(e) => println!("Skipped frame: {}", e)
+            }
+        }
+        (self, vec.len())
+    }
+
+    
 }
 
 impl Frame<ImageContours::Contour<u16>> {
