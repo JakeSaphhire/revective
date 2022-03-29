@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 use crate::graphics::{Drawable, Point, Shape, Flag};
-use serialport as Serial;
 
 impl Shape {
     fn new() -> Shape {
@@ -35,14 +34,9 @@ impl Shape {
 }
 
 impl Drawable for Shape {
-    fn draw(&self, port: &mut dyn Serial::SerialPort) -> std::io::Result<usize>{
-        let mut pts_sent = 0;
+    fn draw(&self, pvec : &mut Vec<u8>) -> () {
         for point in self.vertices.iter() {
-            match point.draw(port) {
-                Ok(v) => pts_sent += v,
-                Err(_e) => (),
-            }
+            point.draw(pvec);
         }
-        Ok(pts_sent)
     }
 }

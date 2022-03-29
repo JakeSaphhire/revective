@@ -59,10 +59,7 @@ impl Point{
 }
 
 impl Drawable for Point {
-    fn draw(&self, port: &mut dyn sp::SerialPort) -> std::io::Result<usize>{
-        match self.send(port) {
-            Ok(_v) => Ok(1),
-            Err(e) => Err(e)
-        }
+    fn draw(&self, pvec: &mut Vec<u8>) -> () {
+        pvec.extend(self.bufferize().iter());
     }
 }

@@ -6,9 +6,10 @@ pub mod contour;
 use std::sync::Mutex;
 
 
-//Defines important traits for the graphic submodules
+// Defines important traits for the graphic submodules
+// Defines a method to turn points or point series into an 8bit 
 pub trait Drawable{
-    fn draw (&self, port: &mut dyn serialport::SerialPort) -> std::io::Result<usize>;
+    fn draw (&self, pvec : &mut Vec<u8>) -> ();
 }
 
 // Structure Definitions
