@@ -4,7 +4,7 @@ pub mod shapes;
 pub mod contour;
 
 use std::sync::Mutex;
-
+use std::collections::VecDeque;
 
 // Defines important traits for the graphic submodules
 // Defines a method to turn points or point series into an 8bit 
@@ -23,8 +23,7 @@ pub struct Frame<T: Drawable> {
     // TODO: Add Size and Depth info
     // Bi-state flag, false points to drawbuffer, true points to the workbuffer
     flip : bool,
-    draw_vec: Mutex<Vec<T>>,
-    work_vec: Mutex<Vec<T>>,
+    framebuffer: VecDeque<Vec<T>>
 }
 
 // Wrapper over points vector to provide simple image processing routine
