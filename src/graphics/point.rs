@@ -1,6 +1,7 @@
 #![allow(dead_code)]
 use serialport as sp;
-use crate::graphics::{Point, Drawable, Flag};
+use crate::graphics::{Point, Drawable, Flag, Buffer, bitconcat};
+use std::collections::HashMap;
 
 // Point structure - 
 // Smallest datapacket sent to serialport, Stored in a 4096-wide bucket by default
@@ -56,10 +57,23 @@ impl Point{
         self.flags |= flag as u8;
         self
     }
+
 }
 
 impl Drawable for Point {
-    fn draw(&self, pvec: &mut Vec<u8>) -> () {
-        pvec.extend(self.bufferize().iter());
+    fn draw(&self, buffer: &mut Buffer<Vec<u8>, HashMap<u8, Vec<u8>>>, pagination : bool) -> () {
+        match buffer {
+            Buffer::V(vec) => {
+                vec.extend(self.bufferize().iter());
+            },
+            Buffer::M(map) => {
+                if let Some(ref mut v) = map.get_mut(&bitconcat((self.posx % 16) as u8, (self.posy % 16) as u8).expect("X or Y too large!!")) {
+                    let nx : u8 = (self.posx % 256) as u8;
+                    let ny : u8 = (self.posy % 256) as u8;
+                    v.push(nx); v.push(ny)
+                }
+            },
+        };
     }
 }
+    

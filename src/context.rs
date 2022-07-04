@@ -1,10 +1,10 @@
 #![allow(dead_code)]
 use serialport as sp;
 use std::time::Instant;
-use std::{thread, collections};
+use std::{thread, collections::HashMap};
 use std::sync::{Arc, Mutex};
 
-use crate::graphics::{Point, Frame, Drawable};
+use crate::graphics::{Point, Frame, Drawable, Buffer};
 
 pub struct Context{
     port: Box<dyn sp::SerialPort>,
@@ -53,7 +53,16 @@ impl Context {
                 let now = Instant::now();
                 {   
                     let mut buffer : Vec<u8> = Vec::<u8>::new();
-                    frame.lock().unwrap().current_frame().iter().for_each( |drawable| drawable.draw(buffer.as_mut()));
+                    //frame.lock().unwrap().current_frame().iter().for_each( |drawable| drawable.draw(buffer.as_mut()));
+                    // TODO: Pagination!
+                    
+                    let mut map : HashMap<u8, Vec<u8>> = HashMap::new();
+                    for i in 0..255 {
+                        map.insert(i as u8, Vec::<u8>::new());
+                    }
+                    let mut fbuf : Buffer<Vec<u8>, HashMap<u8, Vec<u8>>> = Buffer::M(map);
+                    frame.lock().unwrap().current_frame().iter().for_each( |drawable| drawable.draw(&mut fbuf, true));
+                    
 
                     self.sent.1 += buffer.len() as i32/4; 
                     while self.port.bytes_to_write().ok() != Some(0) {}

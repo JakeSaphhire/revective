@@ -18,6 +18,9 @@ use std::sync::{Arc, Mutex};
 // - Modify point.rs drawing method to account for pagination
 // - Implement option in context.rs
 
+// TODO: (Try) Owning reference system for frame/framebuffer instead of mutex
+// TODO: Librarify project? Cleanup main; try games
+// TODO: Port firmware code to STM32 (High prio!!)
 
 // Maximum displayable size, constrained by the DAC's 12bit resolution
 const MAX_SIZE: u32 = 4096;
@@ -53,9 +56,8 @@ fn main() {
     let mut f : Frame<Point> = Frame::new();
     let pt_to_draw = 
         //contour_helper(display.as_mut_luma8().expect("Impossible"), f.as_mut());
-        //f.from_image(&display).1;
-
-        f.from_gif_contoured().1;
+        f.from_image(&display).1;
+        //f.from_gif_contoured().1;
     let ctx : Context = Context::new(DRAW_SPEED as i16);
     println!("{} points to draw, among which {} will actually be drawn", pt_to_draw, (pt_to_draw as i32/ DRAW_SPEED as i32));
 

@@ -15,7 +15,7 @@ use imageproc::point as ImagePoint;
 // Buffers are rotated every drawing loop. The structure is concurrently accessed
 
 // TODO: Buffer system redesign:
-// - Remove caroussel structure: Replace with mutexed VecDeque.
+// - Remove caroussel structure: Replace with mutexed VecDeque. (DONE)
 
 
 impl<T: Drawable> Frame<T> {

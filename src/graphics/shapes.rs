@@ -1,5 +1,6 @@
 #![allow(dead_code)]
-use crate::graphics::{Drawable, Point, Shape, Flag};
+use crate::graphics::{Drawable, Point, Shape, Flag, Buffer};
+use std::collections::HashMap;
 
 impl Shape {
     fn new() -> Shape {
@@ -35,9 +36,9 @@ impl Shape {
 }
 
 impl Drawable for Shape {
-    fn draw(&self, pvec : &mut Vec<u8>) -> () {
+    fn draw(&self, buffer: &mut Buffer<Vec<u8>, HashMap<u8, Vec<u8>>>, pagination : bool) -> () {
         for point in self.vertices.iter() {
-            point.draw(pvec);
+            point.draw(buffer, pagination);
         }
     }
 }
