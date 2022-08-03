@@ -14,8 +14,6 @@ use imageproc::point as ImagePoint;
 // the buffer vector is the one being drawn points into while the engine runs
 // Buffers are rotated every drawing loop. The structure is concurrently accessed
 
-// TODO: Buffer system redesign:
-// - Remove caroussel structure: Replace with mutexed VecDeque. (DONE)
 
 
 impl<T: Drawable> Frame<T> {

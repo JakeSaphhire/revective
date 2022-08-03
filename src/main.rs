@@ -56,13 +56,13 @@ fn main() {
     let mut f : Frame<Point> = Frame::new();
     let pt_to_draw = 
         //contour_helper(display.as_mut_luma8().expect("Impossible"), f.as_mut());
-        f.from_image(&display).1;
-        //f.from_gif_contoured().1;
+        //f.from_image(&display).1;
+        f.from_gif_contoured().1;
     let ctx : Context = Context::new(DRAW_SPEED as i16);
     println!("{} points to draw, among which {} will actually be drawn", pt_to_draw, (pt_to_draw as i32/ DRAW_SPEED as i32));
 
     Context::list_ports();
-    let _ = ctx.spawn_buf(Arc::new(Mutex::new(f))).join().unwrap();
+    let _ = ctx.spawn_buf(Arc::new(Mutex::new(f)), true).join().unwrap();
 }
 
 fn contour_helper(display : &mut image::GrayImage, f : &mut Frame<Point>) -> usize {

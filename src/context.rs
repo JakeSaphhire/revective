@@ -4,7 +4,7 @@ use std::time::Instant;
 use std::{thread, collections::HashMap};
 use std::sync::{Arc, Mutex};
 
-use crate::graphics::{Point, Frame, Drawable, Buffer};
+use crate::graphics::{Point, Frame, Drawable, Buffer, Buffers, IsBuffer, bitconcat};
 
 pub struct Context{
     port: Box<dyn sp::SerialPort>,
@@ -37,7 +37,7 @@ impl Context {
 
 impl Context {
     
-    pub fn spawn_buf<T : Drawable + Send + 'static>(mut self, frame: Arc<Mutex<Frame<T>>>) -> thread::JoinHandle<Result<(), std::io::Error>> {    
+    pub fn spawn_buf<T : Drawable + Send + 'static>(mut self, frame: Arc<Mutex<Frame<T>>>, deltamode: bool) -> thread::JoinHandle<Result<(), std::io::Error>> {    
         thread::spawn(move || -> Result<(), std::io::Error> {
             const LOOP_AMOUNT : u16 = 1;
             let mut i : u16 = 0;
@@ -54,16 +54,9 @@ impl Context {
                 {   
                     let mut buffer : Vec<u8> = Vec::<u8>::new();
                     //frame.lock().unwrap().current_frame().iter().for_each( |drawable| drawable.draw(buffer.as_mut()));
-                    // TODO: Pagination!
-                    
-                    let mut map : HashMap<u8, Vec<u8>> = HashMap::new();
-                    for i in 0..255 {
-                        map.insert(i as u8, Vec::<u8>::new());
-                    }
-                    let mut fbuf : Buffer<Vec<u8>, HashMap<u8, Vec<u8>>> = Buffer::M(map);
-                    frame.lock().unwrap().current_frame().iter().for_each( |drawable| drawable.draw(&mut fbuf, true));
-                    
-
+                    // TODO: deltaxy!!! (DONE!)
+                
+                    frame.lock().unwrap().current_frame().iter().for_each( |drawable| drawable.draw(&mut buffer, deltamode));
                     self.sent.1 += buffer.len() as i32/4; 
                     while self.port.bytes_to_write().ok() != Some(0) {}
                     match self.port.write(&buffer[..]) { 
@@ -80,3 +73,4 @@ impl Context {
         )
     }
 }
+

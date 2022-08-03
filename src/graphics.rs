@@ -9,13 +9,19 @@ use std::collections::{VecDeque, HashMap};
 // Defines important traits for the graphic submodules
 // Defines a method to turn points or point series into an 8bit 
 pub trait Drawable{
-    fn draw(&self, buffer: &mut Buffer<Vec<u8>, HashMap<u8, Vec<u8>>>, pagination : bool) -> ();
+    fn draw(&self, buffer: &mut Vec<u8>, pagination : bool) -> ();
 }
 
-pub enum Buffer<T, S> {
+pub enum Buffer<T, S, U> {
     V(T),
-    M(S)
+    M(S),
+    Q(U)
 }
+
+pub type Buffers = Buffer<Vec<u8>, HashMap<u8, Vec<u8>>, HashMap<Point, Vec<u8>>>;
+pub trait IsBuffer {}
+impl IsBuffer for Buffers {
+} 
 
 // Structure Definitions
 pub struct Point{
