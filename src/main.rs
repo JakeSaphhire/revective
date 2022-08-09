@@ -13,10 +13,12 @@ use serialport as serial;
 use std::time::Instant;
 use std::sync::{Arc, Mutex};
 
-// TODO: Implement paginated drawing method: 
+// TODO: Implement paginated drawing method: DONE
 // - Add pagination flag to point flags
 // - Modify point.rs drawing method to account for pagination
 // - Implement option in context.rs
+
+// TODO: OpenCV bindings and compatibility
 
 // TODO: (Try) Owning reference system for frame/framebuffer instead of mutex
 // TODO: Librarify project? Cleanup main; try games
@@ -24,7 +26,7 @@ use std::sync::{Arc, Mutex};
 
 // Maximum displayable size, constrained by the DAC's 12bit resolution
 const MAX_SIZE: u32 = 4096;
-const DRAW_SPEED: u8 = 5;
+const DRAW_SPEED: u8 = 1;
 
 fn main() {
     //test(); return;
@@ -53,27 +55,28 @@ fn main() {
     return;
     */
  
-    let mut f : Frame<Point> = Frame::new();
-    let pt_to_draw = 
-        //contour_helper(display.as_mut_luma8().expect("Impossible"), f.as_mut());
-        //f.from_image(&display).1;
-        f.from_gif_contoured().1;
+    let mut f : Frame<ImageContours::Contour<u16>> = Frame::new();
+    
     let ctx : Context = Context::new(DRAW_SPEED as i16);
-    println!("{} points to draw, among which {} will actually be drawn", pt_to_draw, (pt_to_draw as i32/ DRAW_SPEED as i32));
-
     Context::list_ports();
-    let _ = ctx.spawn_buf(Arc::new(Mutex::new(f)), true).join().unwrap();
+    let pt_to_draw = 
+        contour_helper(display.as_mut_luma8().expect("Impossible"), f.as_mut());
+        //f.from_image(&display).1;
+        //f.from_gif_contoured().1;
+        println!("{} points to draw, among which {} will actually be drawn", pt_to_draw, (pt_to_draw as i32/ DRAW_SPEED as i32));
+    test();
+    let _ = ctx.spawn_buf(Arc::new(Mutex::new(f)), false).join().unwrap();
 }
 
-fn contour_helper(display : &mut image::GrayImage, f : &mut Frame<Point>) -> usize {
+fn contour_helper(display : &mut image::GrayImage, f : &mut Frame<ImageContours::Contour<u16>>) -> usize {
     image::imageops::colorops::invert(display);
-    f.from_image_contoured(display).1
+    f.from_image(display).1
 }
 
 fn test() -> () {
     let ports = serial::available_ports().expect("Failed to list ports");
-    let mut port = serial::new(&ports[0].port_name, 115200).open().expect("Failed to open port!");
-    let points : Vec<u8> = vec![123; 3_000_000_000];
+    let mut port = serial::new(&ports[0].port_name, 2_000_000).open().expect("Failed to open port!");
+    let points : Vec<u8> = vec![Flag::NoBuffer as u8; 300_000];
     let size = points.len()/4;
     let mut sent : usize = 0;
     let now = Instant::now();
