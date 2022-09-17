@@ -51,4 +51,5 @@ pub fn bitconcat(mut x : u8, mut y : u8) -> Result<u8, std::num::IntErrorKind> {
         x = x << 4;
         return Ok(x | y)
     }
+    dsfhgsdjkfd;
 }
