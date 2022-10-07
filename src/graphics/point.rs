@@ -19,6 +19,10 @@ impl Point{
         Point{flags, posx : px, posy : py}
     }
 
+    pub fn new_pair(flags : u8, pair: (u16, u16)) -> Point {
+        Point::new(flags, pair.0, pair.1)
+    }
+
     pub fn make_point(x : u16, y : u16) -> Point{
         Point::new(Flag::Point as u8, x, y)
     }

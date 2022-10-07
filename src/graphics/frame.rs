@@ -2,7 +2,7 @@
 #![allow(unused_imports)]
 use crate::graphics::{Drawable, Point, Frame, Flag};
 use std::ops::{Deref, DerefMut};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::{Mutex, MutexGuard, mpsc};
 use std::collections::VecDeque;
 
 use image::GenericImageView;
@@ -33,6 +33,11 @@ impl<T: Drawable> Frame<T> {
 
     pub fn pop_drawn(&mut self) -> () {
         self.framebuffer.pop_front();
+    }
+
+    pub fn push_frame(&mut self, frame : Vec<T>) -> &Self {
+        self.framebuffer.push_back(frame);
+        self
     }
 } 
 
@@ -77,7 +82,8 @@ impl Frame<Point> {
         let retsize = vec.len();
         (self, retsize)
     }
-
+    
+    // Will be depreciated !!
     pub fn from_gif_contoured(&mut self) -> (&Self, usize) {
         use std::mem as mem;
         use std::fs::File;

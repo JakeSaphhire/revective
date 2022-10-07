@@ -1,4 +1,4 @@
-pub mod point;
+ pub mod point;
 pub mod frame;
 pub mod shapes;
 pub mod contour;
@@ -9,6 +9,10 @@ use std::collections::VecDeque;
 // Defines a method to turn points or point series into an 8bit 
 pub trait Drawable{
     fn draw(&self, buffer: &mut Vec<u8>, pagination : bool) -> usize;
+}
+
+pub trait Pointable<T> {
+    fn point(&self) -> (T, T);
 }
 
 // Structure Definitions
@@ -51,5 +55,27 @@ pub fn bitconcat(mut x : u8, mut y : u8) -> Result<u8, std::num::IntErrorKind> {
         x = x << 4;
         return Ok(x | y)
     }
-    dsfhgsdjkfd;
+}
+
+impl Pointable<u16> for opencv::core::Point {
+    #[inline]
+    fn point(&self) -> (u16, u16) {
+        let x = u16::try_from(self.x).unwrap();
+        let y = u16::try_from(self.y).unwrap();
+        (x, y)
+    }
+}
+
+impl Pointable<u16> for imageproc::point::Point<u16> {
+    #[inline]
+    fn point(&self) -> (u16, u16) {
+        (self.x, self.y)
+    }
+}
+
+impl Pointable<u16> for Point {
+    #[inline]
+    fn point(&self) -> (u16, u16) {
+        (self.posx, self.posy)
+    }
 }
