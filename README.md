@@ -16,7 +16,7 @@ Images are then turned into their bitwise buffer equivalent and processed before
 
   <p align="center">
     Bitwise, a single point is represented in memory as follow
-    ![32 longmode point](docs/bitwise-longmode.svg)
+    <img src="docs/bitwise-longmode.svg" alt="Longmode bitwise representation">
   </p>
 
 The 8bit flag is used for basic one-way signaling between the computer and the microcontroller. 
