@@ -14,15 +14,9 @@ revective turns images into black-and-white bitmaps, finds the edges, and conver
 Files are loaded via their library-specific method (opencv::videoio for video and image::io:Reader for images) with the convention that the upper left corner is the (0,0) coordinate.
 Images are then turned into their bitwise buffer equivalent and processed before being sent to the Serialport in bloc. 
 
-Bitwise, a single point is represented in memory as follow
-
-![32 longmode point](docs/bitwise-longmode.svg)
-
   <p align="center">
-    
-Bitwise, a single point is represented in memory as follow
-
-![32 longmode point](docs/bitwise-longmode.svg)
+    Bitwise, a single point is represented in memory as follow
+    ![32 longmode point](docs/bitwise-longmode.svg)
   </p>
 
 The 8bit flag is used for basic one-way signaling between the computer and the microcontroller. 
