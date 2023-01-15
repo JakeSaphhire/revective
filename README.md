@@ -14,8 +14,8 @@ revective turns images into black-and-white bitmaps, finds the edges, and conver
 Files are loaded via their library-specific method (opencv::videoio for video and image::io:Reader for images) with the convention that the upper left corner is the (0,0) coordinate.
 Images are then turned into their bitwise buffer equivalent and processed before being sent to the Serialport in bloc. 
 
+Bitwise, a single point is represented in memory as follow
   <p align="center">
-    Bitwise, a single point is represented in memory as follow
     <img src="docs/bitwise-longmode.svg" alt="Longmode bitwise representation">
   </p>
 
@@ -25,8 +25,9 @@ Flags can be combined in ways that make sense (e.g no point+line flag) but that 
 
 Shortmode enables a **modest pts/s speedgain** by halving the size of the packet to 16bits/point. Instead of sending direct coordinates like in longmode, revective sends dx and dy values. The microcontroller is responsible for keeping the total coord. of both x and y in memory.
 Shortmode is entered by provinding two things, a `0x7fu` flag in the flag byte and an anchor point in the following x-y coordinates bits. The microcontroller will save those coordinates and add the values (from -126 to 126) received in shortmode. Bitwise, the representation is as follow:
-
-![32 shortmode point](docs/bitwise-shortmode.svg)
+  <p align="center">
+    <img src="docs/bitwise-shortmode.svg" alt="shortmode bitwise representation">
+  </p>
 
 Because the microcontroller always reads data from serial in packets of *at least* 4 bytes, we can expect it to see at least one point in the future in shortmode. As such, to leave shortmode we can issue 4 consequtive `0x7fu` bytes.
 This last point is important. To maintain maximimal speed between block transfers, it's important to align the buffers sent to multipliers of 4 bytes.
