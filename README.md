@@ -18,6 +18,13 @@ Bitwise, a single point is represented in memory as follow
 
 ![32 longmode point](docs/bitwise-longmode.svg)
 
+  <p align="center">
+    
+Bitwise, a single point is represented in memory as follow
+
+![32 longmode point](docs/bitwise-longmode.svg)
+  </p>
+
 The 8bit flag is used for basic one-way signaling between the computer and the microcontroller. 
 The flag byte can be used to signal a point (`0x80u`), clearing the microcontroller's buffer (`0x10u`), a line (`0x40u`), or an unbuffered coordinate (`0x8u`).
 Flags can be combined in ways that make sense (e.g no point+line flag) but that remains untested. More importantly the flag byte also enables the switch to shortmode with the value `0x7fu`.
