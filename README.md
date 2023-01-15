@@ -3,7 +3,7 @@ Welcome to **revective!** the software penchant of my XY plotter.
 See the xigrek repo for the hardware penchat. This software is meant to drive a 12-bit ADC via a Cypress PSoC 5LP microcontroller. Many of the code's structures count on this basic knowledge.
 
 ## Overview
-![Overview of the system]()(docs/overview.svg)
+![Overview of the system](docs/overview.svg)
 
 The image above explains revective's position in the chain of software that drives the XY plotter. 
 The current iteration of the program acts as a bridge between common video formats and the microcontroller. 
@@ -15,7 +15,7 @@ Files are loaded via their library-specific method (opencv::videoio for video an
 Images are then turned into their bitwise buffer equivalent and processed before being sent to the Serialport in bloc. 
 
 Bitwise, a single point is represented in memory as follow
-![32 longmode point](bitwise-longmode.svg)
+![32 longmode point](docs/bitwise-longmode.svg)
 
 The 8bit flag is used for basic one-way signaling between the computer and the microcontroller. 
 The flag byte can be used to signal a point (`0x80u`), clearing the microcontroller's buffer (`0x10u`), a line (`0x40u`), or an unbuffered coordinate (`0x8u`).
@@ -29,9 +29,9 @@ Because the microcontroller always reads data from serial in packets of *at leas
 This last point is important. To maintain maximimal speed between block transfers, it's important to align the buffers sent to multipliers of 4 bytes.
 
 ## Example
-![demo](demo.gif)
+![demo](docs/demo.gif)
 
 ## Autres
-Thanks for visiting this page ^-^. This project wasn't really meant to be shared but feel free to DM me here if you have more questions or what to implement this yourself
+Thanks for visiting this page ^-^. This project wasn't really meant to be shared but feel free to DM me here if you have more questions or want to implement this yourself!! 
 
 
