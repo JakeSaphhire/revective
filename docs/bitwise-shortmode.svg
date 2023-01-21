@@ -49,7 +49,7 @@
 		<path d="m125,-3.5 v-9.5 H235 v9.5" stroke="#800000" fill="none"/>
 		
 		<text y="-18">
-			<tspan x="60">delta x. (8 bits)</tspan>
+			<tspan x="60">delta x (8 bits)</tspan>
 			<tspan x="180">delta y (8 bits)</tspan>
 		</text>
 		
