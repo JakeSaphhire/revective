@@ -49,8 +49,8 @@
 		<path d="m125,-3.5 v-9.5 H235 v9.5" stroke="#800000" fill="none"/>
 		
 		<text y="-18">
-			<tspan x="60">x coord. (8 bits)</tspan>
-			<tspan x="180">y coord. (8 bits)</tspan>
+			<tspan x="60">delta x. (8 bits)</tspan>
+			<tspan x="180">delta y (8 bits)</tspan>
 		</text>
 		
 		<g transform="translate(0,30.5)" fill="#000">
